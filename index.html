@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSphere | Sustainability Intelligence</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="text-slate-200 overflow-x-hidden">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <section id="view-auth" class="active-section flex flex-col items-center justify-center min-h-screen relative z-10 px-4">
+        <div class="glass-card max-w-md w-full p-10 rounded-3xl animate-float border-t border-emerald-500/20">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-cyan-600 rounded-full mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.4)] mb-6 pulse-ring">
+                    <i class="fa-solid fa-seedling text-white text-3xl"></i>
+                </div>
+                <h1 class="text-4xl font-extrabold text-white tracking-tight mb-2">EcoSphere<span class="text-emerald-400">.ai</span></h1>
+                <p class="text-gray-400 text-sm font-light tracking-wide">Secure Access // Global Sustainability Grid</p>
+            </div>
+
+            <form id="login-form" class="space-y-6">
+                <div class="group">
+                    <label class="block text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2 ml-1">Identity</label>
+                    <div class="relative transition-all duration-300 transform group-hover:scale-[1.02]">
+                        <i class="fa-solid fa-fingerprint absolute left-4 top-4 text-gray-500 group-hover:text-emerald-400 transition-colors"></i>
+                        <input type="email" value="user@ecosphere.io" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner">
+                    </div>
+                </div>
+                <div class="group">
+                    <label class="block text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2 ml-1">Key</label>
+                    <div class="relative transition-all duration-300 transform group-hover:scale-[1.02]">
+                        <i class="fa-solid fa-key absolute left-4 top-4 text-gray-500 group-hover:text-emerald-400 transition-colors"></i>
+                        <input type="password" value="password" class="w-full bg-slate-900/60 border border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(16,185,129,0.5)] transition-all transform hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden group">
+                    <span class="relative z-10">Initialize Session</span>
+                    <div class="absolute inset-0 h-full w-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:animate-shine"></div>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div id="app-wrapper" class="hidden relative z-10 min-h-screen flex flex-col pb-20">
+        
+        <nav class="glass-header sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3 group cursor-pointer" onclick="switchView('dashboard')">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
+                            <i class="fa-solid fa-leaf text-emerald-400"></i>
+                        </div>
+                        <div>
+                            <span class="block font-bold text-xl text-white tracking-tight leading-none">EcoSphere</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest">Planetary Dashboard</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <div class="hidden md:flex gap-1 bg-slate-800/50 p-1 rounded-lg border border-white/10">
+                            <button onclick="switchView('dashboard')" class="nav-btn active-nav px-4 py-1.5 rounded-md text-sm font-medium transition-all">Dashboard</button>
+                            <button onclick="switchView('profile')" class="nav-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-white transition-all">My Profile</button>
+                            <button onclick="switchView('community')" class="nav-btn px-4 py-1.5 rounded-md text-sm font-medium text-gray-400 hover:text-white transition-all">Community</button>
+                        </div>
+
+                        <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700">
+                            <i class="fa-regular fa-clock text-emerald-400 animate-pulse"></i>
+                            <span class="text-xs text-gray-300" id="live-clock">--:--</span>
+                        </div>
+                        <button onclick="logout()" class="text-xs font-bold text-red-400 hover:text-red-300 transition-colors px-3 py-1">
+                            LOGOUT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow max-w-7xl mx-auto px-6 py-10 w-full space-y-12">
+            
+            <section id="view-dashboard" class="view-section active-view space-y-12">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-7 glass-card p-8 rounded-3xl relative overflow-hidden border border-white/5">
+                        <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-bold text-white mb-2">Carbon Intelligence</h2>
+                            <p class="text-gray-400 text-sm">Real-time emission calculation normalized against UN IPCC factors.</p>
+                        </div>
+
+                        <div class="space-y-8">
+                            <div class="space-y-4">
+                                <label class="flex justify-between text-sm font-semibold text-gray-300">
+                                    <span><i class="fa-solid fa-bolt text-yellow-500 mr-2"></i>Monthly Electricity</span>
+                                    <span id="disp-elec" class="text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded text-sm">200 kWh</span>
+                                </label>
+                                <input type="range" id="inp-elec" min="0" max="1000" value="200" class="w-full range-slider">
+                            </div>
+                            <div class="space-y-4">
+                                <label class="flex justify-between text-sm font-semibold text-gray-300">
+                                    <span><i class="fa-solid fa-car text-red-500 mr-2"></i>Weekly Car Travel</span>
+                                    <span id="disp-car" class="text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded text-sm">100 km</span>
+                                </label>
+                                <input type="range" id="inp-car" min="0" max="800" value="100" class="w-full range-slider accent-red-500">
+                            </div>
+                            <div class="space-y-4">
+                                <label class="flex justify-between text-sm font-semibold text-gray-300">
+                                    <span><i class="fa-solid fa-plane text-blue-500 mr-2"></i>Yearly Flights</span>
+                                    <span id="disp-flight" class="text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded text-sm">2 flights</span>
+                                </label>
+                                <input type="range" id="inp-flight" min="0" max="20" value="2" class="w-full range-slider">
+                            </div>
+                            <div class="space-y-4">
+                                <label class="flex justify-between text-sm font-semibold text-gray-300">
+                                    <span><i class="fa-solid fa-utensils text-orange-500 mr-2"></i>Meat Meals / Week</span>
+                                    <span id="disp-meat" class="text-emerald-400 font-mono bg-emerald-500/10 px-3 py-1 rounded text-sm">5 meals</span>
+                                </label>
+                                <input type="range" id="inp-meat" min="0" max="21" value="5" class="w-full range-slider">
+                            </div>
+                        </div>
+
+                        <div class="mt-10 pt-6 border-t border-white/5 flex justify-end">
+                            <button onclick="calculateFootprint()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-105">
+                                RUN ANALYSIS <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 flex flex-col gap-6">
+                        <div id="score-card" class="glass-card p-8 rounded-3xl flex-1 flex flex-col justify-center items-center text-center opacity-50 pointer-events-none transition-all duration-500">
+                            <div class="relative w-32 h-32 mb-4">
+                                <div id="score-ring" class="absolute inset-0 rounded-full border-4 border-transparent border-t-emerald-500 w-full h-full animate-spin-slow"></div>
+                                <div class="absolute inset-0 flex items-center justify-center text-4xl font-bold text-white" id="result-number">--</div>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-300">Tons CO₂e / Year</h3>
+                            <div id="star-container" class="flex gap-2 text-2xl my-4 h-8"></div>
+                            <p id="status-text" class="text-sm text-gray-500">Awaiting inputs...</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl h-64 relative">
+                            <canvas id="footprintChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="legacy-section" class="hidden pt-10 border-t border-white/10">
+                    <div class="glass-card p-10 rounded-3xl bg-gradient-to-r from-red-900/20 to-slate-900 border border-red-500/20">
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <h3 class="text-2xl font-bold text-red-400 mb-2"><i class="fa-solid fa-hourglass-half mr-2"></i>Climate Clock</h3>
+                                <p class="text-gray-400 text-sm mb-6">Time remaining to limit warming to 1.5°C.</p>
+                                <div class="flex gap-4 font-mono">
+                                    <div class="bg-slate-800 p-3 rounded border border-slate-700"><span id="clock-years" class="text-2xl font-bold">04</span> Years</div>
+                                    <div class="bg-slate-800 p-3 rounded border border-slate-700"><span id="clock-days" class="text-2xl font-bold">211</span> Days</div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800/50 p-6 rounded-xl border border-white/5">
+                                <p class="text-sm text-gray-300 font-mono">> SIMULATION:</p>
+                                <div id="typewriter-text" class="text-red-300 text-lg font-bold mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-profile" class="view-section hidden space-y-8">
+                <div class="glass-card p-8 rounded-3xl flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-emerald-600/20 to-blue-600/20"></div>
+                    
+                    <div class="relative z-10 w-24 h-24 rounded-full border-4 border-slate-900 bg-slate-800 flex items-center justify-center shadow-xl">
+                        <i class="fa-solid fa-user-astronaut text-4xl text-gray-400"></i>
+                        <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 rounded-full border-2 border-slate-900" title="Online"></div>
+                    </div>
+                    
+                    <div class="relative z-10 flex-1 text-center md:text-left">
+                        <h2 class="text-3xl font-bold text-white">Guardian Pilot</h2>
+                        <p class="text-emerald-400 text-sm mb-4">Level 5 Sustainability Architect</p>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                            <div class="bg-slate-900/50 px-4 py-2 rounded-lg border border-white/10">
+                                <span class="block text-xs text-gray-500 uppercase">Total Reduction</span>
+                                <span class="text-lg font-bold text-white">12.4 Tons</span>
+                            </div>
+                            <div class="bg-slate-900/50 px-4 py-2 rounded-lg border border-white/10">
+                                <span class="block text-xs text-gray-500 uppercase">Streak</span>
+                                <span class="text-lg font-bold text-orange-400"><i class="fa-solid fa-fire mr-1"></i> 14 Days</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 w-full md:w-1/3 bg-slate-900/50 rounded-xl p-4 border border-white/5 min-h-[140px] flex items-center justify-center gap-4" id="trophy-case">
+                        <p class="text-xs text-gray-500 italic">Complete actions to unlock trophies.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 glass-card p-6 rounded-3xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-white">Emission History</h3>
+                            <select class="bg-slate-900 text-xs text-gray-300 p-2 rounded border border-white/10">
+                                <option>Yearly View</option>
+                                <option>Monthly View</option>
+                            </select>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="historyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl">
+                        <h3 class="text-xl font-bold text-white mb-6">Earned Badges</h3>
+                        <div class="grid grid-cols-3 gap-4" id="badges-grid">
+                            </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-community" class="view-section hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="glass-card p-6 rounded-3xl">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0"></div>
+                            <div class="flex-grow">
+                                <textarea id="post-input" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500" rows="2" placeholder="Share your sustainability milestone..."></textarea>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="flex gap-2 text-gray-400 text-sm">
+                                        <button class="hover:text-emerald-400"><i class="fa-solid fa-image"></i></button>
+                                        <button class="hover:text-emerald-400"><i class="fa-solid fa-chart-simple"></i></button>
+                                    </div>
+                                    <button onclick="Community.addPost()" class="bg-emerald-600 text-white text-xs px-4 py-2 rounded-lg font-bold hover:bg-emerald-500 transition-all">POST UPDATE</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="feed-stream" class="space-y-4">
+                        </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="glass-card p-6 rounded-3xl">
+                        <h3 class="font-bold text-white mb-4 flex items-center"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Regional Leaders</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-yellow-500">1</span>
+                                    <span class="text-gray-300">Sarah J.</span>
+                                </div>
+                                <span class="text-emerald-400 font-mono">-45%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-gray-400">2</span>
+                                    <span class="text-gray-300">Mike R.</span>
+                                </div>
+                                <span class="text-emerald-400 font-mono">-38%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-orange-700">3</span>
+                                    <span class="text-gray-300">You</span>
+                                </div>
+                                <span class="text-emerald-400 font-mono">-12%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="trophy-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="Gamification.closeModal()"></div>
+        <div class="relative bg-gradient-to-b from-slate-800 to-slate-900 p-8 rounded-3xl border border-yellow-500/30 text-center max-w-sm mx-4 animate-float shadow-[0_0_50px_rgba(234,179,8,0.3)]">
+            <div class="w-32 h-32 mx-auto mb-6 relative">
+                <div class="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full"></div>
+                <i class="fa-solid fa-trophy text-6xl text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)] relative z-10"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Carbon Champion!</h2>
+            <p class="text-gray-400 text-sm mb-6">Your footprint is below the national average. You are leading the way for future generations.</p>
+            <button onclick="Gamification.closeModal()" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-6 rounded-full transition-all">Collect Reward</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
